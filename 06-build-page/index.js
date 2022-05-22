@@ -11,20 +11,14 @@ const pathAssets = path.join(__dirname, 'assets');
 const pathStyles = path.join(__dirname, 'styles');
 const pathTemplate = path.join(__dirname, 'template.html');
 
-createFolder(pathProjectDist);
-mergeFiles();
-copyFolder(pathAssets, pathPDAssets);
-pasteComponents();
 
-async function createFolder(pathFolder) {
-    fs.access(pathProjectDist, (error) => {
-        if (error) {
-            fsPromises.mkdir(pathFolder);
-        }
-    });
-}
+fs.access(pathProjectDist, (error) => {
+    if (error) {
+        fsPromises.mkdir(pathProjectDist);
+    }
+});
 
-async function mergeFiles() {
+(async() => {
     let bundleText = '';
     const files = await fsPromises.readdir(pathStyles, { withFileTypes: true });
     for (let file of files) {
@@ -37,7 +31,9 @@ async function mergeFiles() {
         }
     }
     createFile(pathPDStyle, bundleText);
-}
+})();
+
+
 
 async function copyFolder(pathFolderFrom, pathFolderIn) {
     await fsPromises.rm(pathFolderIn, { force: true, recursive: true });
@@ -55,9 +51,10 @@ async function copyFolder(pathFolderFrom, pathFolderIn) {
         }
     }
 }
+copyFolder(pathAssets, pathPDAssets);
 
 
-async function pasteComponents() {
+(async() => {
     let contentHTML = await fsPromises.readFile(pathTemplate, 'utf-8');
     const files = await fsPromises.readdir(pathComponents, { withFileTypes: true });
 
@@ -68,7 +65,7 @@ async function pasteComponents() {
     }
 
     createFile(pathPDIndex, contentHTML);
-}
+})();
 
 async function createFile(pathFile, text) {
     return await fsPromises.writeFile(pathFile, text);
